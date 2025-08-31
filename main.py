@@ -1,28 +1,21 @@
-# import turtle
-# import random
-# t = turtle.Turtle()
-# screen = turtle.Screen()
-# screen.bgcolor("indigo")
-# t.pensize(3)
-# t.speed(40)
 
-# for i in range(15):
-#     r = random.randint(0,255)
-#     g = random.randint(0,255)
-#     b = random.randint(0,255)
-#     t.pencolor(r,g,b)
-#     t.fillcolor(r,g,b)
-#     x = random.randint(-500,500)
-#     y = random.randint(-500,500)
-#     t.penup()
-#     t.goto(x,y)
-#     t.pendown()
+import http.server
+import socketserver
+import os
 
-#     count = 0
-#     t.begin_fill()
-#     while(count<6):
-#      t.forward(100)
-#      t.left(144)
-#      count = count+1
-#     t.end_fill()
-#     t.right(45)
+PORT = 5000
+
+class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
+# Change to the directory containing the web files
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+with socketserver.TCPServer(("0.0.0.0", PORT), MyHTTPRequestHandler) as httpd:
+    print(f"Server running at http://0.0.0.0:{PORT}")
+    print("Open the webview to see your SmartSpend app!")
+    httpd.serve_forever()
