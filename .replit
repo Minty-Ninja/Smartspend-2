@@ -1,6 +1,6 @@
 
-entrypoint = "index.html"
-modules = ["web"]
+entrypoint = "main.py"
+modules = ["python-3.10"]
 
 hidden = [".pythonlibs"]
 
