@@ -46,21 +46,32 @@ body{
   font-size:14px;
 }
 
-/* Main grid: left (main) + right (sidebar) */
+/* Main grid: stacked layout with goals below expenses */
 .content-grid{
-  display:grid;
-  grid-template-columns: 1fr 360px;
-  gap:20px;
-  align-items:start;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
 }
 
 /* Card common styling for forms and lists */
 .card{
   background: var(--card);
   border-radius: var(--radius);
-  padding:16px;
+  padding:20px;
   box-shadow: var(--shadow);
   border: 1px solid rgba(15,23,42,0.03);
+}
+
+/* Special styling for goal section */
+#goal-section{
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 2px solid #bbf7d0;
+}
+
+#goal-section h2{
+  color: #065f46;
+  margin-bottom: 16px;
+  font-size: 22px;
 }
 
 /* Form layout - teachable flex column */
@@ -173,24 +184,30 @@ body{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .goal-amount{
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   color: #059669;
+  background: #ecfdf5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #bbf7d0;
 }
 
 .goal-description{
   font-weight: 600;
-  color: #374151;
-  margin-bottom: 4px;
+  color: #1f2937;
+  margin-bottom: 6px;
+  font-size: 15px;
 }
 
 .goal-date{
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 13px;
+  color: #059669;
+  font-weight: 500;
 }
 
 /* Delete button */
@@ -241,8 +258,8 @@ body{
   font-size:13px;
 }
 
-/* --- Responsive: stack columns on small screens --- */
+/* --- Responsive adjustments --- */
 @media (max-width: 820px){
-  .content-grid{ grid-template-columns: 1fr; }
-  .card{ padding:14px; }
+  .card{ padding:16px; }
+  .site-wrap{ padding: 0 12px; }
 }
