@@ -10,5 +10,9 @@ channel = "stable-23_05"
 language = "python3"
 
 [[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
 localPort = 5900
 externalPort = 80
