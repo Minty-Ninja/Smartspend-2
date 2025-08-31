@@ -17,3 +17,15 @@ externalPort = 5000
 [[ports]]
 localPort = 5900
 externalPort = 80
+
+[workflows]
+runButton = "Serve App"
+
+[[workflows.workflow]]
+name = "Serve App"
+author = 37056484
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 5000"
