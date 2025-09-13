@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartSpend - Sign Up</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+
+  <div class="signup-container">
+    <div class="signup-card">
+      <div class="signup-header">
+        <h1>SmartSpend</h1>
+        <p>Create your account to start tracking expenses</p>
+      </div>
+
+      <form id="signupForm" class="signup-form">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="Enter your full name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="Enter your email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm your password" required />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="terms" required />
+          <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
+        </div>
+
+        <button type="submit" class="signup-btn">Create Account</button>
+      </form>
+
+      <div class="signup-footer">
+        <p>Already have an account? <a href="index.html">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="signup.js"></script>
+</body>
+</html>
