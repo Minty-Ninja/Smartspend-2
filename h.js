@@ -134,3 +134,73 @@ function showGoals() {
 }
 
 
+
+
+// //// Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+// // TODO: Add SDKs for Firebase products that you want to use
+// // https://firebase.google.com/docs/web/setup#available-libraries
+
+// // Your web app's Firebase configuration
+// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// const firebaseConfig = {
+//   apiKey: "",
+//   authDomain: "smartspend-48e3b.firebaseapp.com",
+//   projectId: "smartspend-48e3b",
+//   storageBucket: "smartspend-48e3b.firebasestorage.app",
+//   messagingSenderId: "873649852935",
+//   appId: "1:873649852935:web:782453dd97b8d8709210a2",
+//   measurementId: "G-DF00ZPLQ8K"
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
+function func(){
+   return [
+    {
+      amount: 250.50,description: "Groceries - Fresh vegetables and fruits",date: "10-10-2025",category: "Food"
+    },
+    {
+      amount: 1200.00,description: "Electricity bill payment",date: "10-08-2025",category: "Leisure"
+    },
+    {
+      amount: 350.00,description: "Dinner at Domino’s",
+      date: "10-12-2025",category: "Food"
+    },
+    {
+      amount: 699.00,description: "Uber rides (3 trips)",date: "10-14-2025",category: "Leisure"
+    },
+    {
+      amount: 1599.00,description: "Amazon order – Wireless earphones",date: "10-05-2025",category: "Miscellaneous"
+    }
+  
+   ];
+}
+function piechart() {
+  const data = func();
+  const totals = {};
+
+  for (const item of data) {
+    totals[item.category] = (totals[item.category] || 0) + item.amount;
+  }
+
+  console.log(totals);
+  return totals;
+}
+
+const totals = piechart();
+const ctx = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: Object.keys(totals),
+    datasets: [{
+      data: Object.values(totals),
+      label: 'Expenses by Category',
+      backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56']
+    }]
+  }
+});
+

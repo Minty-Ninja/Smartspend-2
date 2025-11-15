@@ -3,7 +3,7 @@ import http.server
 import socketserver
 import os
 
-PORT = 3000
+PORT = 5000
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):

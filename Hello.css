@@ -252,6 +252,29 @@ body{
   padding: 20px;
 }
 
+/* Chart container */
+.chart-container{
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.chart-container h3{
+  margin: 0 0 16px;
+  font-size: 16px;
+  color: #1f2937;
+  text-align: center;
+}
+
+.chart-container canvas{
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto !important;
+}
+
 /* Footer */
 .site-footer{
   margin-top:18px;
