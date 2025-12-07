@@ -1,6 +1,5 @@
-/* Hello.css - improved page structure and teachable styles */
 
-/* --- variables --- */
+/* --- root variables (dashboard) --- */
 :root{
   --bg: #f4f7fb;
   --card: #ffffff;
@@ -22,6 +21,113 @@ body{
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
+
+/* SCREEN LAYOUT */
+.screen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* =========================
+   AUTH (namespaced through the auth section element)
+   ========================= */
+
+.auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2e86de 0%, #42b883 100%);
+  padding: 28px;
+}
+
+/* auth card */
+.auth-wrap {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+}
+.auth-card {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  text-align: center;
+  animation: authFadeIn 0.6s ease;
+}
+@keyframes authFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-card h1 {
+  color: var(--accent);
+  font-size: 28px;
+  margin: 0 0 6px 0;
+}
+.auth-card p {
+  color: #6b7280;
+  margin-bottom: 18px;
+  font-size: 15px;
+}
+
+/* auth forms */
+.auth-form {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:8px;
+  text-align:left;
+}
+.auth-form label { font-weight:600; font-size:14px; }
+.auth-form input {
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #d1d5db;
+  font-size:14px;
+}
+.auth-form input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(46,134,222,0.12); }
+
+/* status / popup */
+.status-box {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  background: #e3f8e8;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+/* link text */
+.login-text { margin-top: 14px; font-size: 14px; color: #0f172a; text-align:center;}
+.login-text a { color:var(--accent); font-weight:600; text-decoration:none; }
+
+/* popup */
+.popup {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11,22,40,0.45);
+  z-index: 60;
+}
+.popup-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.4);
+  text-align:center;
+}
+
+/* =========================
+   DASHBOARD (main) styles (based on Hello.css)
+   ========================= */
 
 /* Wrapper centers content and limits width */
 .site-wrap{
@@ -67,14 +173,11 @@ body{
   background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
   border: 2px solid #bbf7d0;
 }
-
 #goal-section h2{
   color: #065f46;
   margin-bottom: 16px;
   font-size: 22px;
 }
-
-
 
 /* Form layout - teachable flex column */
 .form{
@@ -98,7 +201,7 @@ body{
   font-size:14px;
 }
 
-/* Button style */
+/* Button style (shared) */
 .btn{
   margin-top:6px;
   padding:10px 12px;
@@ -109,7 +212,7 @@ body{
   cursor:pointer;
   font-weight:600;
 }
-.btn:hover{opacity:0.95}
+.btn:hover{ opacity:0.95; transform: translateY(-1px); }
 
 /* List area */
 .list h3{
@@ -132,7 +235,6 @@ body{
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   position: relative;
 }
-
 .expense-item:hover, .goal-item:hover{
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transform: translateY(-1px);
@@ -146,19 +248,16 @@ body{
   align-items: center;
   margin-bottom: 6px;
 }
-
 .expense-amount{
   font-weight: 700;
   font-size: 16px;
   color: #dc2626;
 }
-
 .expense-description{
   font-weight: 600;
   color: #374151;
   margin-bottom: 4px;
 }
-
 .expense-meta{
   font-size: 12px;
   color: #6b7280;
@@ -176,7 +275,6 @@ body{
   font-weight: 600;
   text-transform: uppercase;
 }
-
 .category-food{ background: #fef3c7; color: #92400e; }
 .category-miscellaneous{ background: #e0e7ff; color: #3730a3; }
 .category-leisure{ background: #fce7f3; color: #be185d; }
@@ -188,7 +286,6 @@ body{
   align-items: center;
   margin-bottom: 8px;
 }
-
 .goal-amount{
   font-weight: 700;
   font-size: 18px;
@@ -198,14 +295,12 @@ body{
   border-radius: 20px;
   border: 1px solid #bbf7d0;
 }
-
 .goal-description{
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 6px;
   font-size: 15px;
 }
-
 .goal-date{
   font-size: 13px;
   color: #059669;
@@ -223,7 +318,6 @@ body{
   cursor: pointer;
   opacity: 0.8;
 }
-
 .delete-btn:hover{
   opacity: 1;
   background: #dc2626;
@@ -237,7 +331,6 @@ body{
   border-radius: 6px;
   text-align: center;
 }
-
 .total-amount{
   font-size: 18px;
   font-weight: 700;
@@ -260,14 +353,12 @@ body{
   border-radius: 8px;
   border: 1px solid #e5e7eb;
 }
-
 .chart-container h3{
   margin: 0 0 16px;
   font-size: 16px;
   color: #1f2937;
   text-align: center;
 }
-
 .chart-container canvas{
   display: block;
   margin: 0 auto;
@@ -283,8 +374,103 @@ body{
   font-size:13px;
 }
 
+/* progress & goal controls (duplicated / refined) */
+.progress-wrapper{
+  width:100%;
+  background:#e5e7eb;
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:8px;
+  height:14px;
+}
+.progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,#10b981,#34d399);
+  transition:width 0.4s ease;
+}
+.progress-text{
+  font-size:13px;
+  font-weight:600;
+  margin-top:4px;
+  color:#065f46;
+}
+.update-btn{
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:4px;
+  padding:4px 8px;
+  font-size:11px;
+  cursor:pointer;
+  margin-right:6px;
+  opacity:0.85;
+}
+.update-btn:hover{
+  opacity:1;
+  background:#1d4ed8;
+}
+.progress-container {
+  width: 100%;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.goal-controls {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.small-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  background:#2563eb;
+  border:none;
+  border-radius:6px;
+  color:white;
+  cursor:pointer;
+}
+#alertBox {
+  background:#1e293b;
+  color:white;
+  padding:10px;
+  border-radius:8px;
+  margin:10px 0;
+  font-size:14px;
+  text-align:center;
+}
+.hidden { display:none; }
+.update-input {
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  width: 80px;
+}
+
 /* --- Responsive adjustments --- */
 @media (max-width: 820px){
   .card{ padding:16px; }
   .site-wrap{ padding: 0 12px; }
-}</media>
+  .content-grid{ gap:16px; }
+}
+
+/* =========================
+   SLIDE TRANSITIONS (auth -> dashboard)
+   ========================= */
+
+.slide-out-up {
+  animation: slideOutUp 0.6s forwards;
+}
+.slide-in-up {
+  animation: slideInUp 0.6s forwards;
+}
+
+@keyframes slideOutUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; visibility: hidden; }
+}
+@keyframes slideInUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; visibility: visible; }
+}

@@ -3,90 +3,142 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SmartSpend - Home</title>
-  <link rel="stylesheet" href="Hello.css">
+  <title>SmartSpend</title>
+
+  <!-- Combined CSS -->
+  <link rel="stylesheet" href="combined.css">
+
+  <!-- Chart.js (loaded before module script to provide global Chart) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-  <div class="site-wrap">
-
-    <header class="site-header">
-      <div class="brand">
+  <!-- ========== AUTH SECTION ========== -->
+  <section id="auth-section" class="screen auth-screen">
+    <div class="auth-wrap">
+      <div class="auth-card" id="auth-card">
         <h1>SmartSpend</h1>
-        <p class="tagline">Track expenses • Set goals • Learn smart money habits</p>
+        <p id="auth-message">Create an account to start tracking smarter</p>
+
+        <!-- Sign Up Form -->
+        <form class="auth-form" id="signup-form">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Enter your name" required>
+
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password (min 8 chars)" required minlength="8">
+
+          <button type="submit" class="btn">Sign Up</button>
+        </form>
+
+        <!-- Login Form (hidden by default) -->
+        <form class="auth-form" id="login-form" style="display:none;">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="Enter your email" required>
+
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password" required>
+
+          <button type="submit" class="btn">Log In</button>
+        </form>
+
+        <div id="status-box" class="status-box" style="display:none;"></div>
+
+        <p class="login-text">
+          <span id="toggle-text">Already have an account?</span>
+          <a href="#" id="toggle-link" onclick="toggleForms(event)">Log in</a>
+        </p>
       </div>
-    </header>
+    </div>
+  </section>
 
-    <main class="content-grid">
+ 
+  <!-- ========== DASHBOARD SECTION (hidden initially) ========== -->
+  <section id="dashboard-section" class="screen dashboard-screen" aria-hidden="true" style="display:none;">
+    <div class="site-wrap">
 
-      <!-- Expenses column (left, main) -->
-      <section class="card" id="expense-section">
-        <h2>Expense Tracker</h2>
-
-        <!-- KEEP THIS FORM ID (header) -->
-        <form id="header" class="form">
-          <label>Amount:</label>
-          <input type="number" id="Amount" placeholder="Enter amount" required />
-
-          <label>Description:</label>
-          <input type="text" id="Description" placeholder="What did you spend on?" required />
-
-          <label>Date:</label>
-          <input type="date" id="Date" required />
-
-          <label>Category:</label>
-          <select id="dropbtn">
-            <option value="Food">Food</option>
-            <option value="Miscellaneous">Miscellaneous</option>
-            <option value="Leisure">Leisure</option>
-          </select>
-
-          <button type="submit" class="btn">Add Expense</button>
-        </form>
-
-        <div class="list">
-          <h3>All Expenses</h3>
-          <div id="displaydiv" class="items"></div>
+      <header class="site-header">
+        <div class="brand">
+          <h1>SmartSpend</h1>
+          <p class="tagline">Track expenses • Set goals • Learn smart money habits</p>
         </div>
+      </header>
 
-        <div class="chart-container">
-          <h3>Expenses by Category</h3>
-          <canvas id="categoryChart" width="300" height="300"></canvas>
-        </div>
-      </section>
+      <main class="content-grid">
 
-      <!-- Goals column (right, sidebar) -->
-      <aside class="card" id="goal-section">
-        <h2>Goal Oriented Motivation</h2>
+        <section class="card" id="expense-section">
+          <h2>Expense Tracker</h2>
 
-        <!-- KEEP THIS FORM ID (header2) -->
-        <form id="header2" class="form">
-          <label>Amount to Save:</label>
-          <input type="number" id="AmountToSave" placeholder="Enter amount" required />
+          <form id="header" class="form">
+            <label>Amount:</label>
+            <input type="number" id="Amount" required />
+            <label>Description:</label>
+            <input type="text" id="Description" required />
+            <label>Date:</label>
+            <input type="date" id="Date" required />
+            <label>Category:</label>
+            <select id="dropbtn">
+              <option value="Food">Food</option>
+              <option value="Miscellaneous">Miscellaneous</option>
+              <option value="Leisure">Leisure</option>
+            </select>
+            <button type="submit" class="btn">Add Expense</button>
+          </form>
 
-          <label>Goal Name:</label>
-          <input type="text" id="DescriptionName" placeholder="e.g., Buy a PS5" required />
+          <div class="list">
+            <h3>All Expenses</h3>
+            <div id="displaydiv" class="items"></div>
+          </div>
 
-          <label>Completion Date:</label>
-          <input type="date" id="DateCompletion" required />
+          <div class="chart-container">
+            <h3>Expenses by Category</h3>
+            <canvas id="categoryChart" width="300" height="300"></canvas>
+          </div>
+        </section>
 
-          <button type="submit" class="btn">Add Goal</button>
-        </form>
+        <aside class="card" id="goal-section">
+          <h2>Goal Oriented Motivation</h2>
 
-        <div class="list">
-          <h3>All Goals</h3>
-          <div id="displaydiv2" class="items"></div>
-        </div>
-      </aside>
+          <form id="header2" class="form">
+            <label>Amount to Save:</label>
+            <input type="number" id="AmountToSave" required />
+            <label>Goal Name:</label>
+            <input type="text" id="DescriptionName" required />
+            <label>Completion Date:</label>
+            <input type="date" id="DateCompletion" required />
+            <button type="submit" class="btn">Add Goal</button>
+          </form>
 
-    </main>
+          <div id="alertBox" class="alertBox hidden"></div>
 
-    <footer class="site-footer">
-      <small>Tip: Press F12 → Console to debug. IDs must remain the same for JS to work.</small>
-    </footer>
+          <div class="list">
+            <h3>All Goals</h3>
+            <div id="displaydiv2" class="items"></div>
+          </div>
+        </aside>
+
+      </main>
+
+      <footer class="site-footer">
+        <small>Tip: Press F12 → Console to debug. IDs must remain the same.</small>
+      </footer>
+
+    </div>
+  </section>
+
+  <!-- Success Popup (shown after signup) -->
+  <div id="home-popup" class="popup">
+    <div class="popup-card">
+      <h2>Welcome to SmartSpend!</h2>
+      <p>Your account has been created successfully.</p>
+      <button id="popup-btn" class="btn">Continue to Dashboard</button>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="h.js"></script>
+  <!-- FINAL: single module JS file (imports Firebase) -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
