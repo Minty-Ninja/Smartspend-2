@@ -62,12 +62,8 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", userCredential.user.uid), { name, email });
 
-    // Show popup. user clicks Continue to proceed to dashboard
-    homePopup.style.display = "flex";
-    popupBtn.onclick = () => {
-      homePopup.style.display = "none";
-      showDashboard(true);
-    };
+    // Redirect directly to dashboard after successful signup
+    showDashboard(true);
   } catch (err) {
     // show user-friendly error
     alert(err.message || "Sign up error");
