@@ -3,7 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
   from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-import { getFirestore, doc, setDoc }
+import { getFirestore, doc, setDoc, addDoc, collection, getDocs, deleteDoc, updateDoc, query, orderBy }
   from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -20,12 +20,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ---------- Current User ----------
+let currentUserId = null;
+
 // ---------- Screen elements ----------
 const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const homePopup = document.getElementById('home-popup');
 const popupBtn = document.getElementById('popup-btn');
-
 
 window.toggleForms = function (e) {
   if (e && e.preventDefault) e.preventDefault();
@@ -44,7 +46,7 @@ window.toggleForms = function (e) {
   } else {
     signupForm.style.display = "none";
     loginForm.style.display = "flex";
-    toggleText.innerText = "Don’t have an account?";
+    toggleText.innerText = "Don't have an account?";
     toggleLink.innerText = "Sign Up";
     message.innerText = "Welcome back! Log in to your account";
   }
@@ -60,12 +62,13 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", userCredential.user.uid), { name, email });
+    currentUserId = userCredential.user.uid;
+    await setDoc(doc(db, "users", currentUserId), { name, email });
 
-    // Redirect directly to dashboard after successful signup
+    // Load user data and redirect to dashboard
+    await loadUserData();
     showDashboard(true);
   } catch (err) {
-    // show user-friendly error
     alert(err.message || "Sign up error");
   }
 });
@@ -77,25 +80,57 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   const password = document.getElementById("login-password").value;
 
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    // On success, show dashboard with slide animation
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    currentUserId = userCredential.user.uid;
+
+    // Load user data and show dashboard
+    await loadUserData();
     showDashboard(true);
   } catch (err) {
     alert("Incorrect email or password.");
   }
 });
 
+// ---------- LOAD USER DATA FROM FIREBASE ----------
+async function loadUserData() {
+  if (!currentUserId) return;
+
+  // Load expenses
+  try {
+    const expensesRef = collection(db, "users", currentUserId, "expenses");
+    const expensesSnap = await getDocs(query(expensesRef, orderBy("createdAt", "desc")));
+    expenses = [];
+    expensesSnap.forEach((docSnap) => {
+      expenses.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    showExpenses();
+    updatePieChart();
+  } catch (err) {
+    console.error("Error loading expenses:", err);
+  }
+
+  // Load goals
+  try {
+    const goalsRef = collection(db, "users", currentUserId, "goals");
+    const goalsSnap = await getDocs(query(goalsRef, orderBy("createdAt", "desc")));
+    goals = [];
+    goalsSnap.forEach((docSnap) => {
+      goals.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    showGoals();
+  } catch (err) {
+    console.error("Error loading goals:", err);
+  }
+}
+
 // ---------- NAV / ANIMATION ----------
 function showDashboard(withSlide = false) {
-  // prepare dashboard
   dashboardSection.style.display = 'block';
   dashboardSection.setAttribute('aria-hidden', 'false');
 
   if (withSlide) {
-    // animate auth out and dashboard in
     authSection.classList.add('slide-out-up');
     dashboardSection.classList.add('slide-in-up');
-    // after animation, hide auth completely
     setTimeout(() => {
       authSection.style.display = 'none';
       authSection.classList.remove('slide-out-up');
@@ -106,7 +141,6 @@ function showDashboard(withSlide = false) {
   }
 }
 
-// Expose for possible external calls
 window.showDashboard = showDashboard;
 
 // ---------- DASHBOARD LOGIC (expenses + goals) ----------
@@ -117,7 +151,7 @@ let expenseChart = null;
 
 const displayDiv = document.getElementById('displaydiv');
 
-document.getElementById('header').addEventListener('submit', function(event) {
+document.getElementById('header').addEventListener('submit', async function(event) {
   event.preventDefault();
 
   const amount = parseFloat(document.getElementById('Amount').value);
@@ -126,28 +160,58 @@ document.getElementById('header').addEventListener('submit', function(event) {
   const category = document.getElementById('dropbtn').value;
 
   if (isNaN(amount) || !description || !date) return;
+  if (!currentUserId) {
+    alert("Please sign in first");
+    return;
+  }
 
-  const expense = {
-    id: Date.now(),
-    amount,
-    description,
-    date,
-    category
-  };
+  try {
+    // Save to Firebase
+    const docRef = await addDoc(collection(db, "users", currentUserId, "expenses"), {
+      amount,
+      description,
+      date,
+      category,
+      createdAt: Date.now()
+    });
 
-  expenses.push(expense);
-  showExpenses();
-  updatePieChart();
-  event.target.reset();
+    // Add to local array with Firebase doc ID
+    const expense = {
+      id: docRef.id,
+      amount,
+      description,
+      date,
+      category,
+      createdAt: Date.now()
+    };
+
+    expenses.unshift(expense);
+    showExpenses();
+    updatePieChart();
+    event.target.reset();
+  } catch (err) {
+    console.error("Error adding expense:", err);
+    alert("Failed to save expense. Please try again.");
+  }
 });
 
-function deleteExpense(id) {
-  expenses = expenses.filter(expense => expense.id !== id);
-  showExpenses();
-  updatePieChart();
+async function deleteExpense(id) {
+  if (!currentUserId) return;
+
+  try {
+    // Delete from Firebase
+    await deleteDoc(doc(db, "users", currentUserId, "expenses", id));
+
+    // Remove from local array
+    expenses = expenses.filter(expense => expense.id !== id);
+    showExpenses();
+    updatePieChart();
+  } catch (err) {
+    console.error("Error deleting expense:", err);
+    alert("Failed to delete expense. Please try again.");
+  }
 }
 
-// expose globally for inline onClick safety
 window.deleteExpense = deleteExpense;
 
 function showExpenses() {
@@ -163,7 +227,6 @@ function showExpenses() {
     total += e.amount;
     const categoryClass = `category-${e.category.toLowerCase()}`;
 
-    // use data-id to attach listeners instead of relying only on inline callbacks
     list += `
       <div class="expense-item" data-id="${e.id}">
         <div class="expense-header">
@@ -187,10 +250,9 @@ function showExpenses() {
 
   displayDiv.innerHTML = list;
 
-  // attach delete listeners (clean)
   displayDiv.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', (ev) => {
-      const id = Number(ev.currentTarget.getAttribute('data-delete'));
+      const id = ev.currentTarget.getAttribute('data-delete');
       deleteExpense(id);
     });
   });
@@ -246,7 +308,7 @@ function updatePieChart() {
 let goals = [];
 const displayDiv2 = document.getElementById('displaydiv2');
 
-document.getElementById('header2').addEventListener('submit', function(event) {
+document.getElementById('header2').addEventListener('submit', async function(event) {
   event.preventDefault();
 
   const amount = parseFloat(document.getElementById('AmountToSave').value);
@@ -254,39 +316,84 @@ document.getElementById('header2').addEventListener('submit', function(event) {
   const date = document.getElementById('DateCompletion').value;
 
   if (isNaN(amount) || !description || !date) return;
+  if (!currentUserId) {
+    alert("Please sign in first");
+    return;
+  }
 
-  const goal = {
-    id: Date.now(),
-    target: amount,
-    saved: 0,
-    description,
-    date
-  };
+  try {
+    // Save to Firebase
+    const docRef = await addDoc(collection(db, "users", currentUserId, "goals"), {
+      target: amount,
+      saved: 0,
+      description,
+      date,
+      createdAt: Date.now()
+    });
 
-  goals.push(goal);
-  showGoals();
-  event.target.reset();
+    // Add to local array with Firebase doc ID
+    const goal = {
+      id: docRef.id,
+      target: amount,
+      saved: 0,
+      description,
+      date,
+      createdAt: Date.now()
+    };
+
+    goals.unshift(goal);
+    showGoals();
+    event.target.reset();
+  } catch (err) {
+    console.error("Error adding goal:", err);
+    alert("Failed to save goal. Please try again.");
+  }
 });
 
-function deleteGoal(id) {
-  goals = goals.filter(goal => goal.id !== id);
-  showGoals();
+async function deleteGoal(id) {
+  if (!currentUserId) return;
+
+  try {
+    // Delete from Firebase
+    await deleteDoc(doc(db, "users", currentUserId, "goals", id));
+
+    // Remove from local array
+    goals = goals.filter(goal => goal.id !== id);
+    showGoals();
+  } catch (err) {
+    console.error("Error deleting goal:", err);
+    alert("Failed to delete goal. Please try again.");
+  }
 }
 window.deleteGoal = deleteGoal;
 
-function updateSavedAmount(id) {
+async function updateSavedAmount(id) {
   const input = document.getElementById(`update-input-${id}`);
   const add = parseFloat(input.value);
 
   if (isNaN(add) || add <= 0) return;
+  if (!currentUserId) return;
 
   const goal = goals.find(g => g.id === id);
   if (!goal) return;
-  goal.saved += add;
-  if (goal.saved > goal.target) goal.saved = goal.target;
 
-  input.value = "";
-  showGoals();
+  let newSaved = goal.saved + add;
+  if (newSaved > goal.target) newSaved = goal.target;
+
+  try {
+    // Update in Firebase
+    await updateDoc(doc(db, "users", currentUserId, "goals", id), {
+      saved: newSaved
+    });
+
+    // Update local
+    goal.saved = newSaved;
+    input.value = "";
+    showGoals();
+  } catch (err) {
+    console.error("Error updating goal:", err);
+    alert("Failed to update goal. Please try again.");
+  }
 }
 window.updateSavedAmount = updateSavedAmount;
 
@@ -340,16 +447,15 @@ function showGoals() {
 
   displayDiv2.innerHTML = list;
 
-  // attach delete / update listeners
   displayDiv2.querySelectorAll('[data-delete-goal]').forEach(btn => {
     btn.addEventListener('click', (ev) => {
-      const id = Number(ev.currentTarget.getAttribute('data-delete-goal'));
+      const id = ev.currentTarget.getAttribute('data-delete-goal');
       deleteGoal(id);
     });
   });
   displayDiv2.querySelectorAll('[data-update]').forEach(btn => {
     btn.addEventListener('click', (ev) => {
-      const id = Number(ev.currentTarget.getAttribute('data-update'));
+      const id = ev.currentTarget.getAttribute('data-update');
       updateSavedAmount(id);
     });
   });
@@ -365,7 +471,3 @@ function escapeHtml(str) {
     .replaceAll('"','&quot;')
     .replaceAll("'",'&#39;');
 }
-
-// ---------- INITIAL STATE: show auth -->
-// (dashboard hidden by default; auth visible)
-
