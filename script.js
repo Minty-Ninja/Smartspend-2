@@ -65,9 +65,11 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
     currentUserId = userCredential.user.uid;
     await setDoc(doc(db, "users", currentUserId), { name, email });
 
-    // Load user data and redirect to dashboard
-    await loadUserData();
+    // Show dashboard first, then load user data (so chart renders on visible canvas)
     showDashboard(true);
+    setTimeout(async () => {
+      await loadUserData();
+    }, 100);
   } catch (err) {
     alert(err.message || "Sign up error");
   }
@@ -83,9 +85,11 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     currentUserId = userCredential.user.uid;
 
-    // Load user data and show dashboard
-    await loadUserData();
+    // Show dashboard first, then load user data (so chart renders on visible canvas)
     showDashboard(true);
+    setTimeout(async () => {
+      await loadUserData();
+    }, 100);
   } catch (err) {
     alert("Incorrect email or password.");
   }
@@ -271,7 +275,6 @@ function updatePieChart() {
   const totals = getCategoryTotals();
   const ctxElem = document.getElementById('categoryChart');
   if (!ctxElem) return;
-  const ctx = ctxElem.getContext('2d');
 
   const labels = Object.keys(totals);
   const values = Object.values(totals);
@@ -284,13 +287,13 @@ function updatePieChart() {
     return;
   }
 
+  // Always destroy and recreate chart to avoid rendering issues
   if (expenseChart) {
-    expenseChart.data.labels = labels;
-    expenseChart.data.datasets[0].data = values;
-    expenseChart.update();
-    return;
+    expenseChart.destroy();
+    expenseChart = null;
   }
 
+  const ctx = ctxElem.getContext('2d');
   expenseChart = new Chart(ctx, {
     type: 'pie',
     data: {
