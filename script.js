@@ -424,11 +424,12 @@ function showGoals() {
     const percentage = ((g.saved / g.target) * 100);
     const pctDisplay = Math.min(Math.max(Math.round(percentage), 0), 100);
 
+    const safeId = escapeHtml(g.id);
     list += `
-      <div class="goal-item" data-id="${g.id}">
+      <div class="goal-item" data-id="${safeId}">
         <div class="goal-header">
           <span class="goal-amount">₹${g.target.toFixed(2)}</span>
-          <button class="delete-btn" data-delete-goal="${g.id}">Delete</button>
+          <button class="delete-btn" data-delete-goal="${safeId}">Delete</button>
         </div>
 
         <div class="goal-description">${escapeHtml(g.description)}</div>
@@ -441,8 +442,8 @@ function showGoals() {
         <div class="progress-text">Saved: ₹${g.saved.toFixed(2)} / ₹${g.target.toFixed(2)} (${pctDisplay}%)</div>
 
         <div class="goal-controls">
-          <input type="number" id="update-input-${g.id}" placeholder="Add" class="update-input"/>
-          <button class="update-btn" data-update="${g.id}">Update</button>
+          <input type="number" id="update-input-${safeId}" placeholder="Add" class="update-input"/>
+          <button class="update-btn" data-update="${safeId}">Update</button>
         </div>
       </div>
     `;
