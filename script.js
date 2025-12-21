@@ -232,14 +232,14 @@ function showExpenses() {
     const categoryClass = `category-${e.category.toLowerCase()}`;
 
     list += `
-      <div class="expense-item" data-id="${e.id}">
+      <div class="expense-item" data-id="${escapeHtml(e.id)}">
         <div class="expense-header">
           <span class="expense-amount">₹${e.amount.toFixed(2)}</span>
-          <button class="delete-btn" data-delete="${e.id}">Delete</button>
+          <button class="delete-btn" data-delete="${escapeHtml(e.id)}">Delete</button>
         </div>
         <div class="expense-description">${escapeHtml(e.description)}</div>
         <div class="expense-meta">
-          <span class="category-badge ${categoryClass}">${e.category}</span>
+          <span class="category-badge ${escapeHtml(categoryClass)}">${escapeHtml(e.category)}</span>
           <span>${new Date(e.date).toLocaleDateString()}</span>
         </div>
       </div>
