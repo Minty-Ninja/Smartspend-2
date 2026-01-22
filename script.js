@@ -1,4 +1,3 @@
-
 // ---------- FIREBASE (imports must run in module context) ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
@@ -475,3 +474,4 @@ function escapeHtml(str) {
     .replaceAll('"','&quot;')
     .replaceAll("'",'&#39;');
 }
+

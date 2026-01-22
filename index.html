@@ -123,7 +123,8 @@
       </main>
 
       <footer class="site-footer">
-        <small>Tip: Press F12 → Console to debug. IDs must remain the same.</small>
+        <small>Tip: Use Smartspend Smartly
+        </small>
       </footer>
 
     </div>
@@ -140,5 +141,30 @@
 
   <!-- FINAL: single module JS file (imports Firebase) -->
   <script type="module" src="script.js"></script>
+
+
+  <!-- Chat Window -->
+  <div id="chatbox" class="chatbox">
+    <div class="chat-header">
+      <span>Smartbot</span>
+      <button id="closeChat">✕</button>
+    </div>
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-area">
+      <input id="userInput" type="text" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <!-- Floating icon -->
+  <button id="chatIcon" class="chat-icon">💬</button>
+
+  <script src="chatbot.js"></script>
+  </body>
+  </html>
+ 
 </body>
 </html>
+
