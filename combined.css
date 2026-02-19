@@ -573,3 +573,40 @@ body {
   padding: 8px 12px;
   cursor: pointer;
 }
+
+/* Wrapper centers content and limits width */
+.site-wrap{
+  max-width: var(--max-width);
+  margin: 28px auto;
+  padding: 0 16px;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 100vh;
+  background: #1e293b;
+  padding: 20px;
+  color: white;
+  z-index: 10;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px;
+  margin: 5px 0;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.sidebar a:hover {
+  background: #334155;
+}

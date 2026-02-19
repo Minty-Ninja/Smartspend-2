@@ -58,6 +58,14 @@
  
   <!-- ========== DASHBOARD SECTION (hidden initially) ========== -->
   <section id="dashboard-section" class="screen dashboard-screen" aria-hidden="true" style="display:none;">
+    
+    <div id="sidebar" class="sidebar">
+      <h2>SmartSpend</h2>
+      <a href="#" onclick="showHome()">🏠 Dashboard</a>
+      <a href="#" onclick="showMonthly()">📊 Monthly Review</a>
+      <a href="#" id = "logOut" onclick="logout()">🚪 Logout</a>
+    </div>
+    
     <div class="site-wrap">
 
       <header class="site-header">
@@ -139,12 +147,11 @@
     </div>
   </div>
 
-  <!-- FINAL: single module JS file (imports Firebase) -->
-  <script type="module" src="script.js"></script>
 
 
   <!-- Chat Window -->
-  <div id="chatbox" class="chatbox">
+  <div id = "chatwrapper" style="display:none">
+     <div id="chatbox" class="chatbox">
     <div class="chat-header">
       <span>Smartbot</span>
       <button id="closeChat">✕</button>
@@ -161,7 +168,15 @@
   <!-- Floating icon -->
   <button id="chatIcon" class="chat-icon">💬</button>
 
+  </div> 
+ 
+
   <script src="chatbot.js"></script>
+
+
+  <!-- FINAL: single module JS file (imports Firebase) -->
+  <script type="module" src="script.js"></script>
+  
   </body>
   </html>
  

@@ -1,10 +1,12 @@
   
   // ---------- FIREBASE (imports must run in module context) ----------
-  import { auth, db } from "./config";
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+    from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, addDoc, collection, getDocs, deleteDoc, updateDoc, query, orderBy }
     from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-  import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js"  
   // const firebaseConfig = {
   //   apiKey: "AIzaSyDlqTN_qGHoR_pATZ1esqxnrCrx83WyJ3E",
   //   authDomain: "smartspend-48e3b.firebaseapp.com",
@@ -58,19 +60,11 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  user = signupUser(name, email, password)
-  if (user){
-    console.log("Sign up Here")
-    showDashboard()
-
-  }
-
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     currentUserId = userCredential.user.uid;
     await setDoc(doc(db, "users", currentUserId), { name, email });
-    console.log("hi")
 
     // Show dashboard first, then load user data (so chart renders on visible canvas)
     showDashboard(true);
@@ -146,7 +140,7 @@ function showDashboard(withSlide = false) {
       authSection.style.display = 'none';
       authSection.classList.remove('slide-out-up');
       dashboardSection.classList.remove('slide-in-up');
-    }, 10);
+    }, 650);
   } else {
     authSection.style.display = 'none';
   }
