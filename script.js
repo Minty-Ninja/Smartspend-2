@@ -5,19 +5,7 @@
     from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
   import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js"  
-  // const firebaseConfig = {
-  //   apiKey: "AIzaSyDlqTN_qGHoR_pATZ1esqxnrCrx83WyJ3E",
-  //   authDomain: "smartspend-48e3b.firebaseapp.com",
-  //   projectId: "smartspend-48e3b",
-  //   storageBucket: "smartspend-48e3b.firebasestorage.app",
-  //   messagingSenderId: "873649852935",
-  //   appId: "1:873649852935:web:782453dd97b8d8709210a2",
-  //   measurementId: "G-DF00ZPLQ8K"
-  // };
 
-  // const app = initializeApp(firebaseConfig);
-  // const auth = getAuth(app);
-  // const db = getFirestore(app);
 
 // ---------- Current User ----------
 let currentUserId = null;
@@ -27,6 +15,7 @@ const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const homePopup = document.getElementById('home-popup');
 const popupBtn = document.getElementById('popup-btn');
+const chatWrapped = document.getElementById('chatwrapper')
 
 window.toggleForms = function (e) {
   if (e && e.preventDefault) e.preventDefault();
@@ -35,6 +24,8 @@ window.toggleForms = function (e) {
   const toggleText = document.getElementById("toggle-text");
   const toggleLink = document.getElementById("toggle-link");
   const message = document.getElementById("auth-message");
+
+  console.log("toggleform")
 
   if (signupForm.style.display === "none" || signupForm.style.display === "") {
     signupForm.style.display = "flex";
@@ -54,6 +45,8 @@ window.toggleForms = function (e) {
 // ---------- AUTH FORM LISTENERS ----------
 document.getElementById("signup-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  console.log("signup") 
 
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();

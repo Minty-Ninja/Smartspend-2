@@ -1,9 +1,9 @@
 const model = "gemini-2.5-flash"
-// const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
-import {GAK} from '.env'
+const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
+//import {GAK} from '.env'
 
 console.log("hi")
-const key = GAK
+//const key = GAK
 
 const chatbox = document.getElementById("chatbox");
 const chatIcon = document.getElementById("chatIcon");

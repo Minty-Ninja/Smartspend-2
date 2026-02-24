@@ -3,6 +3,8 @@ import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut }
   from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 import { doc, setDoc, addDoc, collection, getDocs, deleteDoc, updateDoc, query, orderBy }
   from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+
   
 //DOM reference
 const authSection = document.getElementById('auth-section');
