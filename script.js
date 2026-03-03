@@ -15,86 +15,38 @@ const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const homePopup = document.getElementById('home-popup');
 const popupBtn = document.getElementById('popup-btn');
-const chatWrapped = document.getElementById('chatwrapper')
 
-window.toggleForms = function (e) {
-  if (e && e.preventDefault) e.preventDefault();
-  const signupForm = document.getElementById("signup-form");
-  const loginForm = document.getElementById("login-form");
-  const toggleText = document.getElementById("toggle-text");
-  const toggleLink = document.getElementById("toggle-link");
-  const message = document.getElementById("auth-message");
+// ---------- AUTH STATE ----------
+// onAuthStateChanged(auth, async (user) => {
+//   if (user) {
+//     currentUserId = user.uid;
+//     showDashboard();
+//     await loadUserData();
+//   } else {
+//     currentUserId = null;
+//     showAuth();
+//   }
+// });
 
-  console.log("toggleform")
-
-  if (signupForm.style.display === "none" || signupForm.style.display === "") {
-    signupForm.style.display = "flex";
-    loginForm.style.display = "none";
-    toggleText.innerText = "Already have an account?";
-    toggleLink.innerText = "Log in";
-    message.innerText = "Create an account to start tracking smarter";
-  } else {
-    signupForm.style.display = "none";
-    loginForm.style.display = "flex";
-    toggleText.innerText = "Don't have an account?";
-    toggleLink.innerText = "Sign Up";
-    message.innerText = "Welcome back! Log in to your account";
-  }
-};
-
-// ---------- AUTH FORM LISTENERS ----------
-document.getElementById("signup-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  console.log("signup") 
-
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  user = signupUser(name, email, password)
-  if (user){
-    console.log("Sign up Here")
-    showDashboard()
-
-  }
+document.addEventListener("DOMContentLoaded", () => {
 
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    currentUserId = userCredential.user.uid;
-    await setDoc(doc(db, "users", currentUserId), { name, email });
-    console.log("hi")
+  onAuthStateChanged(auth, async (user) => {
 
-    // Show dashboard first, then load user data (so chart renders on visible canvas)
-    showDashboard(true);
-    setTimeout(async () => {
-      await loadUserData();
-    }, 100);
-  } catch (err) {
-    alert(err.message || "Sign up error");
-  }
+    currentUserId = user ? user.uid : null;
+    console.log(currentUserId)
+
+    if (!user) {
+      showAuth();
+      return;
+    }
+
+    showDashboard();
+    await loadUserData();
+
+  });
+
 });
-
-document.getElementById("login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    currentUserId = userCredential.user.uid;
-
-    // Show dashboard first, then load user data (so chart renders on visible canvas)
-    showDashboard(true);
-    setTimeout(async () => {
-      await loadUserData();
-    }, 100);
-  } catch (err) {
-    alert("Incorrect email or password.");
-  }
-});
-
 // ---------- LOAD USER DATA FROM FIREBASE ----------
 async function loadUserData() {
   if (!currentUserId) return;

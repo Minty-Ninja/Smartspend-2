@@ -477,3 +477,85 @@ function escapeHtml(str) {
     .replaceAll("'",'&#39;');
 }
 
+// =========================Script==========
+
+// const chatWrapped = document.getElementById('chatwrapper')
+
+// window.toggleForms = function (e) {
+//   if (e && e.preventDefault) e.preventDefault();
+//   const signupForm = document.getElementById("signup-form");
+//   const loginForm = document.getElementById("login-form");
+//   const toggleText = document.getElementById("toggle-text");
+//   const toggleLink = document.getElementById("toggle-link");
+//   const message = document.getElementById("auth-message");
+
+//   console.log("toggleform")
+
+//   if (signupForm.style.display === "none" || signupForm.style.display === "") {
+//     signupForm.style.display = "flex";
+//     loginForm.style.display = "none";
+//     toggleText.innerText = "Already have an account?";
+//     toggleLink.innerText = "Log in";
+//     message.innerText = "Create an account to start tracking smarter";
+//   } else {
+//     signupForm.style.display = "none";
+//     loginForm.style.display = "flex";
+//     toggleText.innerText = "Don't have an account?";
+//     toggleLink.innerText = "Sign Up";
+//     message.innerText = "Welcome back! Log in to your account";
+//   }
+// };
+
+// ---------- AUTH FORM LISTENERS ----------
+// document.getElementById("signup-form").addEventListener("submit", async (e) => {
+//   e.preventDefault();
+
+//   console.log("signup") 
+
+//   const name = document.getElementById("name").value.trim();
+//   const email = document.getElementById("email").value.trim();
+//   const password = document.getElementById("password").value;
+//   user = signupUser(name, email, password)
+//   if (user){
+//     console.log("Sign up Here")
+//     showDashboard()
+
+//   }
+
+
+//   try {
+//     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+//     currentUserId = userCredential.user.uid;
+
+//     await setDoc(doc(db, "users", currentUserId), { name, email });
+//     console.log(currentUserId)
+
+//     // Show dashboard first, then load user data (so chart renders on visible canvas)
+//     showDashboard(true);
+//     setTimeout(async () => {
+//       await loadUserData();
+//     }, 100);
+//   } catch (err) {
+//     alert(err.message || "Sign up error");
+//   }
+// });
+
+// document.getElementById("login-form").addEventListener("submit", async (e) => {
+//   e.preventDefault();
+
+//   const email = document.getElementById("login-email").value.trim();
+//   const password = document.getElementById("login-password").value;
+
+//   try {
+//     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+//     currentUserId = userCredential.user.uid;
+
+//     // Show dashboard first, then load user data (so chart renders on visible canvas)
+//     showDashboard(true);
+//     setTimeout(async () => {
+//       await loadUserData();
+//     }, 100);
+//   } catch (err) {
+//     alert("Incorrect email or password.");
+//   }
+// });

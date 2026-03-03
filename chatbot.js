@@ -2,7 +2,7 @@ const model = "gemini-2.5-flash"
 const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
 //import {GAK} from '.env'
 
-console.log("hi")
+//console.log("hi")
 //const key = GAK
 
 const chatbox = document.getElementById("chatbox");
@@ -16,21 +16,21 @@ const sendBtn = document.getElementById("sendBtn");
 
 
 let hasWelcomed = false;
-console.log("hello")
+// console.log("hello")
 function openChat() {
   chatbox.classList.add("open");
   chatbox.setAttribute("aria-hidden", "false");
-console.log("open", chatbox)
+// console.log("open", chatbox)
   if (!hasWelcomed) {
     addBot("How can I assist you?");
     hasWelcomed = true;
-    console.log("welcome")
+    // console.log("welcome")
   }
   setTimeout(() => input.focus(), 50);
 }
 
 function closechatbox() {
-  console.log("close")
+  // console.log("close")
   chatbox.classList.remove("open");
   chatbox.setAttribute("aria-hidden", "true");
 }
@@ -39,7 +39,7 @@ function closechatbox() {
 function toggleChat() {
 
   if (chatbox.classList.contains("open")) {
-    console.log("toggle")
+    // console.log("toggle")
     closechatbox()}
   else openChat();
 }
@@ -214,7 +214,7 @@ addMessage("How can I help you?", "bot");
 
 async function sendMessage() {
   const userText = input.value.trim();
-  console.log(userText)
+  //console.log(userText)
   if (!userText) return;
 
   addUser(userText);
@@ -232,7 +232,7 @@ If user asks for a plan, give a 3-4 step plan.
 User question: ${userText}`;
 
     const reply = await callGemini(prompt, key);
-    console.log(reply)
+    //console.log(reply)
     addBot(reply || "I couldn't generate a reply. Try again.");
   } catch (err) {
     addBot(`Error: ${err?.message || String(err)}`);
@@ -258,7 +258,7 @@ async function callGemini(text){
     throw new Error(`Gemini API error ${res.status}: ${errText || res.statusText}`);
   }
   const data = await res.json();
-  console.log(data) 
+  //console.log(data) 
 
   // Typical response shape: candidates[0].content.parts[0].text :contentReference[oaicite:4]{index=4}
   const out =
