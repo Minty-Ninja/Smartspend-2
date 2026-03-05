@@ -42,14 +42,14 @@ window.toggleForms = function (e) {
 };
 
 // ---------- SHOW DASHBOARD ----------
-function showDashboard() {
+export function showDashboard() {
   authSection.style.display = "none";
   dashboardSection.style.display = "block";
   chatwrapper.style.display = "block"
 }
 
 // ---------- SHOW AUTH ----------
-function showAuth() {
+export function showAuth() {
   dashboardSection.style.display = "none";
   authSection.style.display = "block";
 }
@@ -100,7 +100,17 @@ window.logout = async function () {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     showDashboard();
+    window.dispatchEvent(new CustomEvent("userLoggedIn", { detail: { uid: user.uid } }));
+
   } else {
     showAuth();
+    window.dispatchEvent(new CustomEvent("userLoggedOut"));
   }
 });
+
+homePopup.addEventListener("click", () => { homePopup.style.display = "none"; });
+export function getAndResetNewSignup(){
+  const val = isNewSignUp
+  isNewSignUp = false
+  return val
+}

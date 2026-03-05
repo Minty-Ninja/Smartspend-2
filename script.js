@@ -1,430 +1,229 @@
-  
-  // ---------- FIREBASE (imports must run in module context) ----------
-  import { auth, db } from "./config";
-  import { getFirestore, doc, setDoc, addDoc, collection, getDocs, deleteDoc, updateDoc, query, orderBy }
-    from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { auth, db } from "./config.js";
+import { onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import {
+  doc, addDoc, collection,
+  getDocs, deleteDoc, updateDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-  import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js"  
+// Import auth UI + the flag checker
+import { showDashboard, showAuth, getAndResetNewSignup } from "./authentication.js";
 
-
-// ---------- Current User ----------
 let currentUserId = null;
+let expenses = [], goals = [], expenseChart = null;
+const displayDiv  = document.getElementById("displaydiv");
+const displayDiv2 = document.getElementById("displaydiv2");
 
-// ---------- Screen elements ----------
-const authSection = document.getElementById('auth-section');
-const dashboardSection = document.getElementById('dashboard-section');
-const homePopup = document.getElementById('home-popup');
-const popupBtn = document.getElementById('popup-btn');
-
-// ---------- AUTH STATE ----------
-// onAuthStateChanged(auth, async (user) => {
-//   if (user) {
-//     currentUserId = user.uid;
-//     showDashboard();
-//     await loadUserData();
-//   } else {
-//     currentUserId = null;
-//     showAuth();
-//   }
-// });
-
-document.addEventListener("DOMContentLoaded", () => {
-
-
-  onAuthStateChanged(auth, async (user) => {
-
-    currentUserId = user ? user.uid : null;
+// SESSION — lives here now, no custom events needed
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUserId = user.uid;
     console.log(currentUserId)
-
-    if (!user) {
-      showAuth();
-      return;
-    }
-
-    showDashboard();
+    const isNew = getAndResetNewSignup(); // true only right after signup
+    showDashboard(isNew);
     await loadUserData();
-
-  });
-
+  } else {
+    currentUserId = null;
+    expenses = [];
+    goals    = [];
+    if (displayDiv)  displayDiv.innerHTML  = "";
+    if (displayDiv2) displayDiv2.innerHTML = "";
+    if (expenseChart) { expenseChart.destroy(); expenseChart = null; }
+    showAuth();
+  }
 });
-// ---------- LOAD USER DATA FROM FIREBASE ----------
+
+// Nav
+window.showHome = function() {
+  document.getElementById("expense-section").style.display = "block";
+  document.getElementById("goal-section").style.display    = "block";
+};
+window.showMonthly = function() { alert("Monthly Review coming soon!"); };
+
+// Load all data for current user
 async function loadUserData() {
   if (!currentUserId) return;
 
-  // Load expenses
   try {
-    const expensesRef = collection(db, "users", currentUserId, "expenses");
-    const expensesSnap = await getDocs(query(expensesRef, orderBy("createdAt", "desc")));
+    const snap = await getDocs(
+      query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))
+    );
     expenses = [];
-    expensesSnap.forEach((docSnap) => {
-      expenses.push({ id: docSnap.id, ...docSnap.data() });
-    });
+    snap.forEach(d => expenses.push({ id: d.id, ...d.data() }));
     showExpenses();
     updatePieChart();
-  } catch (err) {
-    console.error("Error loading expenses:", err);
-  }
+  } catch (err) { console.error("Error loading expenses:", err); }
 
-  // Load goals
   try {
-    const goalsRef = collection(db, "users", currentUserId, "goals");
-    const goalsSnap = await getDocs(query(goalsRef, orderBy("createdAt", "desc")));
+    const snap = await getDocs(
+      query(collection(db, "users", currentUserId, "goals"), orderBy("createdAt", "desc"))
+    );
     goals = [];
-    goalsSnap.forEach((docSnap) => {
-      goals.push({ id: docSnap.id, ...docSnap.data() });
-    });
+    snap.forEach(d => goals.push({ id: d.id, ...d.data() }));
     showGoals();
-  } catch (err) {
-    console.error("Error loading goals:", err);
-  }
+  } catch (err) { console.error("Error loading goals:", err); }
 }
 
-// ---------- NAV / ANIMATION ----------
-function showDashboard(withSlide = false) {
-  dashboardSection.style.display = 'block';
-  dashboardSection.setAttribute('aria-hidden', 'false');
-
-  if (withSlide) {
-    authSection.classList.add('slide-out-up');
-    dashboardSection.classList.add('slide-in-up');
-    setTimeout(() => {
-      authSection.style.display = 'none';
-      authSection.classList.remove('slide-out-up');
-      dashboardSection.classList.remove('slide-in-up');
-    }, 10);
-  } else {
-    authSection.style.display = 'none';
-  }
-}
-
-window.showDashboard = showDashboard;
-
-// ---------- DASHBOARD LOGIC (expenses + goals) ----------
-
-// ---------- EXPENSES ----------
-let expenses = [];
-let expenseChart = null;
-
-const displayDiv = document.getElementById('displaydiv');
-
-document.getElementById('header').addEventListener('submit', async function(event) {
+// Add expense
+document.getElementById("header").addEventListener("submit", async function(event) {
   event.preventDefault();
-
-  const amount = parseFloat(document.getElementById('Amount').value);
-  const description = document.getElementById('Description').value;
-  const date = document.getElementById('Date').value;
-  const category = document.getElementById('dropbtn').value;
-
+  const amount      = parseFloat(document.getElementById("Amount").value);
+  const description = document.getElementById("Description").value;
+  const date        = document.getElementById("Date").value;
+  const category    = document.getElementById("dropbtn").value;
   if (isNaN(amount) || !description || !date) return;
-  if (!currentUserId) {
-    alert("Please sign in first");
-    return;
-  }
-
+  if (!currentUserId) { alert("Please sign in first."); return; }
   try {
-    // Save to Firebase
     const docRef = await addDoc(collection(db, "users", currentUserId, "expenses"), {
-      amount,
-      description,
-      date,
-      category,
-      createdAt: Date.now()
+      amount, description, date, category, createdAt: Date.now()
     });
-
-    // Add to local array with Firebase doc ID
-    const expense = {
-      id: docRef.id,
-      amount,
-      description,
-      date,
-      category,
-      createdAt: Date.now()
-    };
-
-    expenses.unshift(expense);
+    expenses.unshift({ id: docRef.id, amount, description, date, category, createdAt: Date.now() });
     showExpenses();
     updatePieChart();
     event.target.reset();
-  } catch (err) {
-    console.error("Error adding expense:", err);
-    alert("Failed to save expense. Please try again.");
-  }
+  } catch (err) { console.error(err); alert("Failed to save expense."); }
 });
 
+// Delete expense
 async function deleteExpense(id) {
   if (!currentUserId) return;
-
   try {
-    // Delete from Firebase
     await deleteDoc(doc(db, "users", currentUserId, "expenses", id));
-
-    // Remove from local array
-    expenses = expenses.filter(expense => expense.id !== id);
+    expenses = expenses.filter(e => e.id !== id);
     showExpenses();
     updatePieChart();
-  } catch (err) {
-    console.error("Error deleting expense:", err);
-    alert("Failed to delete expense. Please try again.");
-  }
+  } catch (err) { console.error(err); alert("Failed to delete expense."); }
 }
-
 window.deleteExpense = deleteExpense;
 
+// Show expenses
 function showExpenses() {
-  if (expenses.length === 0) {
-    displayDiv.innerHTML = '<div class="empty-state">No expenses added yet. Start tracking your spending!</div>';
+  if (!expenses.length) {
+    displayDiv.innerHTML = '<div class="empty-state">No expenses yet. Start tracking!</div>';
     return;
   }
-
-  let list = "";
-  let total = 0;
-
+  let list = "", total = 0;
   for (const e of expenses) {
     total += e.amount;
-    const categoryClass = `category-${e.category.toLowerCase()}`;
-
-    list += `
-      <div class="expense-item" data-id="${escapeHtml(e.id)}">
-        <div class="expense-header">
-          <span class="expense-amount">₹${e.amount.toFixed(2)}</span>
-          <button class="delete-btn" data-delete="${escapeHtml(e.id)}">Delete</button>
-        </div>
-        <div class="expense-description">${escapeHtml(e.description)}</div>
-        <div class="expense-meta">
-          <span class="category-badge ${escapeHtml(categoryClass)}">${escapeHtml(e.category)}</span>
-          <span>${new Date(e.date).toLocaleDateString()}</span>
-        </div>
+    list += `<div class="expense-item">
+      <div class="expense-header">
+        <span class="expense-amount">₹${e.amount.toFixed(2)}</span>
+        <button class="delete-btn" data-delete="${escapeHtml(e.id)}">Delete</button>
       </div>
-    `;
+      <div class="expense-description">${escapeHtml(e.description)}</div>
+      <div class="expense-meta">
+        <span class="category-badge category-${e.category.toLowerCase()}">${escapeHtml(e.category)}</span>
+        <span>${new Date(e.date).toLocaleDateString()}</span>
+      </div></div>`;
   }
-
-  list += `
-    <div class="total-section">
-      <div class="total-amount">Total Spent: ₹${total.toFixed(2)}</div>
-    </div>
-  `;
-
+  list += `<div class="total-section"><div class="total-amount">Total Spent: ₹${total.toFixed(2)}</div></div>`;
   displayDiv.innerHTML = list;
-
-  displayDiv.querySelectorAll('[data-delete]').forEach(btn => {
-    btn.addEventListener('click', (ev) => {
-      const id = ev.currentTarget.getAttribute('data-delete');
-      deleteExpense(id);
-    });
-  });
+  displayDiv.querySelectorAll("[data-delete]").forEach(btn =>
+    btn.addEventListener("click", ev => deleteExpense(ev.currentTarget.getAttribute("data-delete")))
+  );
 }
 
-// ---------- PIE CHART FOR EXPENSES ----------
-function getCategoryTotals() {
-  const totals = {};
-  for (const e of expenses) {
-    totals[e.category] = (totals[e.category] || 0) + e.amount;
-  }
-  return totals;
-}
-
+// Pie chart
 function updatePieChart() {
-  const totals = getCategoryTotals();
-  const ctxElem = document.getElementById('categoryChart');
+  const ctxElem = document.getElementById("categoryChart");
   if (!ctxElem) return;
-
-  const labels = Object.keys(totals);
-  const values = Object.values(totals);
-
-  if (labels.length === 0) {
-    if (expenseChart) {
-      expenseChart.destroy();
-      expenseChart = null;
-    }
-    return;
-  }
-
-  // Always destroy and recreate chart to avoid rendering issues
-  if (expenseChart) {
-    expenseChart.destroy();
-    expenseChart = null;
-  }
-
-  const ctx = ctxElem.getContext('2d');
-  expenseChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: values,
-        label: 'Expenses by Category',
-        backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff']
-      }]
-    }
+  if (expenseChart) { expenseChart.destroy(); expenseChart = null; }
+  const totals = {};
+  for (const e of expenses) totals[e.category] = (totals[e.category] || 0) + e.amount;
+  const labels = Object.keys(totals), values = Object.values(totals);
+  if (!labels.length) return;
+  expenseChart = new Chart(ctxElem.getContext("2d"), {
+    type: "pie",
+    data: { labels, datasets: [{ data: values,
+      backgroundColor: ["#ff6384","#36a2eb","#ffcd56","#4bc0c0","#9966ff"] }] }
   });
 }
 
-// ---------- GOALS ----------
-let goals = [];
-const displayDiv2 = document.getElementById('displaydiv2');
-
-document.getElementById('header2').addEventListener('submit', async function(event) {
+// Add goal
+document.getElementById("header2").addEventListener("submit", async function(event) {
   event.preventDefault();
-
-  const amount = parseFloat(document.getElementById('AmountToSave').value);
-  const description = document.getElementById('DescriptionName').value;
-  const date = document.getElementById('DateCompletion').value;
-
+  const amount      = parseFloat(document.getElementById("AmountToSave").value);
+  const description = document.getElementById("DescriptionName").value;
+  const date        = document.getElementById("DateCompletion").value;
   if (isNaN(amount) || !description || !date) return;
-  if (!currentUserId) {
-    alert("Please sign in first");
-    return;
-  }
-
+  if (!currentUserId) { alert("Please sign in first."); return; }
   try {
-    // Save to Firebase
     const docRef = await addDoc(collection(db, "users", currentUserId, "goals"), {
-      target: amount,
-      saved: 0,
-      description,
-      date,
-      createdAt: Date.now()
+      target: amount, saved: 0, description, date, createdAt: Date.now()
     });
-
-    // Add to local array with Firebase doc ID
-    const goal = {
-      id: docRef.id,
-      target: amount,
-      saved: 0,
-      description,
-      date,
-      createdAt: Date.now()
-    };
-
-    goals.unshift(goal);
+    goals.unshift({ id: docRef.id, target: amount, saved: 0, description, date, createdAt: Date.now() });
     showGoals();
     event.target.reset();
-  } catch (err) {
-    console.error("Error adding goal:", err);
-    alert("Failed to save goal. Please try again.");
-  }
+  } catch (err) { console.error(err); alert("Failed to save goal."); }
 });
 
+// Delete goal
 async function deleteGoal(id) {
   if (!currentUserId) return;
-
   try {
-    // Delete from Firebase
     await deleteDoc(doc(db, "users", currentUserId, "goals", id));
-
-    // Remove from local array
-    goals = goals.filter(goal => goal.id !== id);
+    goals = goals.filter(g => g.id !== id);
     showGoals();
-  } catch (err) {
-    console.error("Error deleting goal:", err);
-    alert("Failed to delete goal. Please try again.");
-  }
+  } catch (err) { console.error(err); alert("Failed to delete goal."); }
 }
 window.deleteGoal = deleteGoal;
 
+// Update saved amount
 async function updateSavedAmount(id) {
   const input = document.getElementById(`update-input-${id}`);
-  const add = parseFloat(input.value);
-
-  if (isNaN(add) || add <= 0) return;
-  if (!currentUserId) return;
-
+  const add   = parseFloat(input.value);
+  if (isNaN(add) || add <= 0 || !currentUserId) return;
   const goal = goals.find(g => g.id === id);
   if (!goal) return;
-
-  let newSaved = goal.saved + add;
-  if (newSaved > goal.target) newSaved = goal.target;
-
+  const newSaved = Math.min(goal.saved + add, goal.target);
   try {
-    // Update in Firebase
-    await updateDoc(doc(db, "users", currentUserId, "goals", id), {
-      saved: newSaved
-    });
-
-    // Update local
+    await updateDoc(doc(db, "users", currentUserId, "goals", id), { saved: newSaved });
     goal.saved = newSaved;
     input.value = "";
     showGoals();
-  } catch (err) {
-    console.error("Error updating goal:", err);
-    alert("Failed to update goal. Please try again.");
-  }
+  } catch (err) { console.error(err); alert("Failed to update goal."); }
 }
 window.updateSavedAmount = updateSavedAmount;
 
-function getDaysUntilDate(targetDate) {
-  const today = new Date();
-  const target = new Date(targetDate);
-  const diffTime = target - today;
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
+// Show goals
 function showGoals() {
-  if (goals.length === 0) {
-    displayDiv2.innerHTML = '<div class="empty-state">No goals set yet. Create your first savings goal!</div>';
+  if (!goals.length) {
+    displayDiv2.innerHTML = '<div class="empty-state">No goals yet. Create your first!</div>';
     return;
   }
-
   let list = "";
-
   for (const g of goals) {
-    const daysLeft = getDaysUntilDate(g.date);
+    const daysLeft   = Math.ceil((new Date(g.date) - new Date()) / 86400000);
     const statusText = daysLeft > 0 ? `${daysLeft} days left`
-                     : daysLeft === 0 ? 'Due today!'
-                     : `${Math.abs(daysLeft)} days overdue`;
-
-    const percentage = ((g.saved / g.target) * 100);
-    const pctDisplay = Math.min(Math.max(Math.round(percentage), 0), 100);
-
+                     : daysLeft === 0 ? "Due today!" : `${Math.abs(daysLeft)} days overdue`;
+    const pct    = Math.min(Math.max(Math.round((g.saved / g.target) * 100), 0), 100);
     const safeId = escapeHtml(g.id);
-    list += `
-      <div class="goal-item" data-id="${safeId}">
-        <div class="goal-header">
-          <span class="goal-amount">₹${g.target.toFixed(2)}</span>
-          <button class="delete-btn" data-delete-goal="${safeId}">Delete</button>
-        </div>
-
-        <div class="goal-description">${escapeHtml(g.description)}</div>
-        <div class="goal-date">Target: ${new Date(g.date).toLocaleDateString()} • ${statusText}</div>
-
-        <div class="progress-wrapper">
-          <div class="progress-bar" style="width:${pctDisplay}%;"></div>
-        </div>
-
-        <div class="progress-text">Saved: ₹${g.saved.toFixed(2)} / ₹${g.target.toFixed(2)} (${pctDisplay}%)</div>
-
-        <div class="goal-controls">
-          <input type="number" id="update-input-${safeId}" placeholder="Add" class="update-input"/>
-          <button class="update-btn" data-update="${safeId}">Update</button>
-        </div>
+    list += `<div class="goal-item">
+      <div class="goal-header">
+        <span class="goal-amount">₹${g.target.toFixed(2)}</span>
+        <button class="delete-btn" data-delete-goal="${safeId}">Delete</button>
       </div>
-    `;
+      <div class="goal-description">${escapeHtml(g.description)}</div>
+      <div class="goal-date">Target: ${new Date(g.date).toLocaleDateString()} • ${statusText}</div>
+      <div class="progress-wrapper"><div class="progress-bar" style="width:${pct}%;"></div></div>
+      <div class="progress-text">Saved: ₹${g.saved.toFixed(2)} / ₹${g.target.toFixed(2)} (${pct}%)</div>
+      <div class="goal-controls">
+        <input type="number" id="update-input-${safeId}" placeholder="Add" class="update-input"/>
+        <button class="update-btn" data-update="${safeId}">Update</button>
+      </div></div>`;
   }
-
   displayDiv2.innerHTML = list;
-
-  displayDiv2.querySelectorAll('[data-delete-goal]').forEach(btn => {
-    btn.addEventListener('click', (ev) => {
-      const id = ev.currentTarget.getAttribute('data-delete-goal');
-      deleteGoal(id);
-    });
-  });
-  displayDiv2.querySelectorAll('[data-update]').forEach(btn => {
-    btn.addEventListener('click', (ev) => {
-      const id = ev.currentTarget.getAttribute('data-update');
-      updateSavedAmount(id);
-    });
-  });
+  displayDiv2.querySelectorAll("[data-delete-goal]").forEach(btn =>
+    btn.addEventListener("click", ev => deleteGoal(ev.currentTarget.getAttribute("data-delete-goal")))
+  );
+  displayDiv2.querySelectorAll("[data-update]").forEach(btn =>
+    btn.addEventListener("click", ev => updateSavedAmount(ev.currentTarget.getAttribute("data-update")))
+  );
 }
 
-// ---------- small helper ----------
+// Helper
 function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'",'&#39;');
+  if (!str) return "";
+  return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 }
-
