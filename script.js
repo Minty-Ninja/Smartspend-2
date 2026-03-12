@@ -227,3 +227,34 @@ function escapeHtml(str) {
   return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;")
     .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 }
+
+
+window.toggleSideBar = function() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sideBarOverlay");
+  const btn     = document.getElementById("hamIcons");
+  if (sidebar.classList.contains("open")) {
+    window.closeSideBar();
+  } else {
+    sidebar.classList.add("open");
+    overlay.classList.add("visible");
+    btn.classList.add("active");
+  }
+};
+ 
+window.closeSideBar = function() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sideBarOverlay");
+  const btn     = document.getElementById("hamIcons");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("visible");
+  btn.classList.remove("active");
+};
+ 
+// Close sidebar on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") window.closeSideBar();
+});
+ 
+
+console.log(document.getElementById("hamIcons"))

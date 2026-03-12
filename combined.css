@@ -616,5 +616,12 @@ body {
   border-radius:8px;
   border:1px solid #d1d5db;
   font-size:14px;
+}
 
+.menu-icon{
+  color:white;
+  font-size:"bold";
+  position:"fixed"; 
+  z-index: 9999;
+  
 }
