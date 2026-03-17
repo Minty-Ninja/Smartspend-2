@@ -1,5 +1,17 @@
+import {
+  doc, addDoc, collection,
+  getDocs, deleteDoc, updateDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+import { auth, db } from "./config.js";
+
+import { onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
 const model = "gemini-2.5-flash"
 const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
+
+
 //import {GAK} from '.env'
 
 //console.log("hi")
@@ -13,6 +25,16 @@ const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 //const flag = false
 
+let currentUI = null
+let cacheData = 0 
+
+onAuthStateChanged(auth, (user)=>{
+  
+  currentUI = user? user.id: null 
+  cacheData = null
+
+}
+)
 
 
 let hasWelcomed = false;
@@ -211,6 +233,12 @@ addMessage("How can I help you?", "bot");
 //     addMessage("Network error", "bot");
 //   }
 // }
+
+function showQuickAction(){
+  const goalCount = 0
+  const data = 0
+
+}
 
 async function sendMessage() {
   const userText = input.value.trim();
