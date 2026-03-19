@@ -677,7 +677,7 @@ body {
   display:flex; 
   flex-direction: column;
   box-shadow: 1px 2px 5px rgba(255,255,255, 0.2);
-  transition : background 0.2s; 
+  transition : opacity 0.3s ease; 
 
 }
 
@@ -688,8 +688,5 @@ body {
   height : 2.5; 
   background :rgba(0, 0, 0, 0.2); 
   transition: transform 0.3s ease, opacity 0.3s ease;
-
-
-
 
 }

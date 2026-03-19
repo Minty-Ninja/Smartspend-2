@@ -233,12 +233,17 @@ window.toggleSideBar = function() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sideBarOverlay");
   const btn     = document.getElementById("hamIcons");
+  const isOpen  = sidebar.classList.contains("open")
+  btn.style.opacity = isOpen?"1":"0"
+  btn.style.pointerEvents = isOpen?"all":"none"
   if (sidebar.classList.contains("open")) {
     window.closeSideBar();
+    // btn.style.display = "block"
   } else {
     sidebar.classList.add("open");
     overlay.classList.add("visible");
-    btn.classList.add("active");
+    // btn.classList.add("active");
+    // btn.style.display = "none"
   }
 };
  
@@ -248,7 +253,8 @@ window.closeSideBar = function() {
   const btn     = document.getElementById("hamIcons");
   sidebar.classList.remove("open");
   overlay.classList.remove("visible");
-  btn.classList.remove("active");
+  btn.style.opacity = "1";
+  btn.style.pointerEvents = "all"; 
 };
  
 // Close sidebar on Escape key

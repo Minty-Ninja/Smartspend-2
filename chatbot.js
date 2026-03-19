@@ -25,19 +25,45 @@ const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 //const flag = false
 
-let currentUI = null
+let currentUserId = null
 let cacheData = 0 
+
+let hasWelcomed = false;
+
+
 
 onAuthStateChanged(auth, (user)=>{
   
-  currentUI = user? user.id: null 
+  currentUserId = user? user.id: null 
   cacheData = null
+  hasWelcomed = false; 
 
 }
 )
 
+async function loadUserData() {
+  if (!currentUserId) return {expense:[], goals:[]}; 
+  if (cacheData) return cacheData;
+  const [expenseInfo, goalInfo] = await Promise.all([
+    getDocs(
+      query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))
+    ), 
 
-let hasWelcomed = false;
+    getDocs(
+      query(collection(db, "users", currentUserId, "goals"), orderBy("createdAt", "desc"))
+    )
+
+  ])
+
+    const expenses = expenseInfo.docs.map(d=>({id: d.id, ...d.data()}))
+    const goals = goalInfo.docs.map(d=>({id: d.id, ...d.data()}))
+    cacheData = {expenses, goals}
+    return cacheData; 
+
+}
+
+
+
 // console.log("hello")
 function openChat() {
   chatbox.classList.add("open");
@@ -69,7 +95,28 @@ function toggleChat() {
 chatIcon.addEventListener("click", toggleChat());
 closeChat.addEventListener("click", closechatbox());
 
+async function showQuickAction(){
 
+  const {goals} = await loadUserData()
+  const wrap = document.createElement("div")
+  wrap.className("QuickAction")
+  const actions = [
+
+    {label:"Expense Summary", text:"Give me a summary of my expenses so far"}, 
+    {label:"Saving Tips", text:"Give me the tips to save more money based on my expenses so far"}
+
+  ]
+
+  if (goals.length>0){
+    actions.unshift({
+      label: `Which of my ${goals.length} goal${goals.length>1?"s is":" is"} most realistic?`, 
+      text: "Analyse goals"
+      
+    })
+
+  }
+
+}
 
 function addBot(){
 
