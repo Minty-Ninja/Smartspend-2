@@ -153,8 +153,33 @@
         </small>
       </footer>
 
+      
+
     </div>
   </section>
+
+  <section id="monthlyIns" class="monthlyInsight" aria-hidden="true" style="display:none;">
+
+    <div class="monthly-header"> 
+      <button class="back-btn" onclick="showHome()">← Back</button>
+       <h2>Monthly Review</h2>
+   </div>
+
+   <div id = "monthlyLoad" class = "monthly-header">
+    Loading Your Monthly Insight ⏳
+   </div>
+
+   <div id = "monthlyContent" class = "monthly-header" style = "display: none;">
+
+    <h2>Monthly Expenditure Overview</h2>
+    
+    <canvas id = "expenseBarChart"> </canvas>
+
+   </div>
+  
+  </section>
+
+
 
   <!-- Success Popup (shown after signup) -->
   <div id="home-popup" class="popup">
@@ -190,6 +215,8 @@
  
 
   <script src="chatbot.js"></script>
+
+
 
 
   <!-- FINAL: single module JS file (imports Firebase) -->

@@ -9,6 +9,10 @@ import {
 // Import auth UI + the flag checker
 import { showDashboard, showAuth, getAndResetNewSignup } from "./authentication.js";
 
+let monthlyChart = null; 
+let monthlyCategory = null; 
+
+
 let currentUserId = null;
 let expenses = [], goals = [], expenseChart = null;
 const displayDiv  = document.getElementById("displaydiv");
@@ -37,8 +41,47 @@ onAuthStateChanged(auth, async (user) => {
 window.showHome = function() {
   document.getElementById("expense-section").style.display = "block";
   document.getElementById("goal-section").style.display    = "block";
+  document.getElementById("monthlyIns").style.display = "none"; 
+  closeSideBar()
 };
-window.showMonthly = function() { alert("Monthly Review coming soon!"); };
+window.showMonthly = async function(){
+  document.getElementById("expense-section").style.display = "none";
+  document.getElementById("goal-section").style.display = "none";
+  document.getElementById("monthlyIns").style.display = "block"; 
+  closeSideBar()
+  
+await renderMonthlyData()
+};
+
+async function renderMonthlyData(){
+  const loading = document.getElementById("monthlyLoad")
+  const content = document.getElementById("monthlyContent")
+  loading.style.display = "block"; 
+  content.style.display = "none";
+  let allExpenses = []
+  try {
+     const snap = await getDocs(
+      query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))
+    ); 
+    console.log(snap)
+    snap.forEach(x => allExpenses.push({id: x.id, ...x.data()}))
+
+
+  }
+  catch(err){
+    loading.textContent = "Failed to Load Data. Please try again"
+    console.error(err)
+    return; 
+
+  }
+  loading.style.display = "none"; 
+  content.style.display = "block";
+
+}
+
+function buildMonthly(allExpenses){
+
+}
 
 // Load all data for current user
 async function loadUserData() {
