@@ -79,7 +79,75 @@ async function renderMonthlyData(){
 
 }
 
+const categoryCol = {
+  Food: { bg: "rgba(255, 99, 132, 0.8)", border: "#ff6384" },
+  Leisure: { bg: "rgba(54, 162, 235, 0.8)", border: "#36a2eb" }, 
+  Miscellaneous: { bg: "rgba(255, 205, 86, 0.8)", border: "#ffcd56" }
+}
+
+function getCategoryColour(category){
+  return categoryCol[category]
+
+}
+
+function toMonthKey(dateStr) { 
+  // dateStr is "YYYY-MM-DD" from the date input → returns "YYYY-MM" 
+  return dateStr ? dateStr.slice(0, 7) : ""; } 
+
+function formatMonthLabel(key) { 
+  if (!key) return ""; 
+  const [year, month] = key.split("-"); 
+  return new Date(year, month - 1).toLocaleString("default", { month: "long", year: "numeric" }); 
+}
+
+function currentMonthKey() { 
+  const now = new Date(); 
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+
 function buildMonthly(allExpenses){
+
+  console.log(allExpenses)
+  const monthset = new Set()
+  const categorySet = new Set()
+  allExpenses.forEach(e=>{
+  monthset.add(toMonthKey(e.date()))
+  categorySet.add(e.category)
+
+  }
+)
+
+const sortedMonth = [...monthset].sort(); 
+const sortedCategory = [...categorySet].sort();
+
+const dataMap = {}
+sortedCategory.forEach(ct=>{
+  dataMap[ct] = {}
+  sortedMonth.forEach(m=>{dataMap[ct][m]=0})
+})
+
+allExpenses.forEach(e=>{
+  const key = toMonthKey(e.date())
+  
+  if (dataMap[e.category]){
+    dataMap[e.category][key] = (dataMap[e.category][key] || 0) + e.amount()
+    
+    
+  }
+})
+
+const dataSets = sortedCategory.map(cat => ({ 
+  label: cat, 
+  data: sortedMonth.map(m => dataMap[cat][m] || 0), 
+  backgroundColor: categoryCol(cat).bg, 
+  borderColor: categoryCol(cat).border, 
+  borderWidth: 1, 
+  borderRadius: 4, }));
+
+  const labels = sortedMonth.map(e=>{
+    formatMonthLabel(e)
+  })
 
 }
 
