@@ -1,17 +1,5 @@
-import {
-  doc, addDoc, collection,
-  getDocs, deleteDoc, updateDoc, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-import { auth, db } from "./config.js";
-
-import { onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-
 const model = "gemini-2.5-flash"
 const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
-
-
 //import {GAK} from '.env'
 
 //console.log("hi")
@@ -25,45 +13,9 @@ const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 //const flag = false
 
-let currentUserId = null
-let cacheData = 0 
+
 
 let hasWelcomed = false;
-
-
-
-onAuthStateChanged(auth, (user)=>{
-  
-  currentUserId = user? user.id: null 
-  cacheData = null
-  hasWelcomed = false; 
-
-}
-)
-
-async function loadUserData() {
-  if (!currentUserId) return {expense:[], goals:[]}; 
-  if (cacheData) return cacheData;
-  const [expenseInfo, goalInfo] = await Promise.all([
-    getDocs(
-      query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))
-    ), 
-
-    getDocs(
-      query(collection(db, "users", currentUserId, "goals"), orderBy("createdAt", "desc"))
-    )
-
-  ])
-
-    const expenses = expenseInfo.docs.map(d=>({id: d.id, ...d.data()}))
-    const goals = goalInfo.docs.map(d=>({id: d.id, ...d.data()}))
-    cacheData = {expenses, goals}
-    return cacheData; 
-
-}
-
-
-
 // console.log("hello")
 function openChat() {
   chatbox.classList.add("open");
@@ -95,28 +47,7 @@ function toggleChat() {
 chatIcon.addEventListener("click", toggleChat());
 closeChat.addEventListener("click", closechatbox());
 
-async function showQuickAction(){
 
-  const {goals} = await loadUserData()
-  const wrap = document.createElement("div")
-  wrap.className("QuickAction")
-  const actions = [
-
-    {label:"Expense Summary", text:"Give me a summary of my expenses so far"}, 
-    {label:"Saving Tips", text:"Give me the tips to save more money based on my expenses so far"}
-
-  ]
-
-  if (goals.length>0){
-    actions.unshift({
-      label: `Which of my ${goals.length} goal${goals.length>1?"s is":" is"} most realistic?`, 
-      text: "Analyse goals"
-      
-    })
-
-  }
-
-}
 
 function addBot(){
 
@@ -281,12 +212,6 @@ addMessage("How can I help you?", "bot");
 //   }
 // }
 
-function showQuickAction(){
-  const goalCount = 0
-  const data = 0
-
-}
-
 async function sendMessage() {
   const userText = input.value.trim();
   //console.log(userText)
@@ -344,4 +269,3 @@ async function callGemini(text){
 
   return out;
 }
-

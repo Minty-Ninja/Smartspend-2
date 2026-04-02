@@ -210,6 +210,7 @@ const chatwrapper = document.getElementById("chatwrapper")
 const countrySelect = document.getElementById("countrySelect");
 
 // ---------- TOGGLE LOGIN / SIGNUP ----------
+let isNewSignUp = false; 
 window.toggleForms = function (e) {
   if (e) e.preventDefault();
 
@@ -220,6 +221,7 @@ window.toggleForms = function (e) {
   const message = document.getElementById("auth-message");
 
   const isSignupVisible = signupForm.style.display !== "none";
+
 
   signupForm.style.display = isSignupVisible ? "none" : "flex";
   loginForm.style.display = isSignupVisible ? "flex" : "none";
@@ -300,8 +302,9 @@ document.getElementById("signup-form").addEventListener("submit", async (e) => {
     await setDoc(doc(db, "users", userCred.user.uid), {
       name,
       email,
-      country
+      country: selected.code
     });
+    isNewSignUp = true; 
 
     homePopup.style.display = "flex";
 
@@ -344,7 +347,8 @@ onAuthStateChanged(auth, (user) => {
 
 homePopup.addEventListener("click", () => { homePopup.style.display = "none"; });
 export function getAndResetNewSignup(){
-const val = isNewSignUp
+  const val = isNewSignUp
   isNewSignUp = false
+  console.log("New sign up")
   return val
 }

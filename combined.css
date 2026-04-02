@@ -690,3 +690,29 @@ body {
   transition: transform 0.3s ease, opacity 0.3s ease;
 
 }
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: #555;
+  background: #f8f5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}

@@ -63,8 +63,12 @@ async function renderMonthlyData(){
      const snap = await getDocs(
       query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))
     ); 
-    console.log(snap)
+
+
+    console.log(snap, "Monthly Data")
     snap.forEach(x => allExpenses.push({id: x.id, ...x.data()}))
+
+    console.log(allExpenses, "expenses")
 
 
   }
@@ -115,6 +119,7 @@ function buildMonthly(allExpenses){
   monthset.add(toMonthKey(e.date()))
   categorySet.add(e.category)
 
+
   }
 )
 
@@ -149,10 +154,57 @@ const dataSets = sortedCategory.map(cat => ({
     formatMonthLabel(e)
   })
 
+  const ctx = document.getElementById("expenseBarChart").getContext("2d")
+  if (monthlyChart){
+    monthlyChart.destroy()
+
+  }
+  else{
+    monthlyChart = null; 
+  }
+console.log("datasets", dataSets)
+monthlyChart = new Chart(ctx, {
+   type: "bar",
+    data: { labels, dataSets },
+    options: {
+      responsive: true,
+      interaction: {
+        mode: "index",       // tooltip shows all categories for hovered month
+        intersect: false,
+      },
+      plugins: {
+        legend: { display: false },  // we build our own legend below
+        tooltip: {
+          callbacks: {
+            label: ctx =>
+              ` ${ctx.dataSets.label}: ₹${ctx.parsed.y.toFixed(2)}`
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { callback: v => v }
+        }
+      }
+    }
+})
+console.log("monthly", monthlyChart)
+ // Build custom legend chips under the chart
+  const legendEl = document.getElementById("barChartLegend");
+  legendEl.innerHTML = sortedCategories.map(cat => `
+    <span class="legend-chip">
+      <span class="legend-dot" style="background:${getCategoryColor(cat).border}"></span>
+      ${cat}
+    </span>
+  `).join("");
 }
 
 // Load all data for current user
 async function loadUserData() {
+  console.log("Hi")
   if (!currentUserId) return;
 
   try {
