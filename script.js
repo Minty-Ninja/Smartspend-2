@@ -78,8 +78,10 @@ async function renderMonthlyData(){
     return; 
 
   }
+
   loading.style.display = "none"; 
   content.style.display = "block";
+  setTimeout(buildMonthly(allExpenses), 1000)
 
 }
 
@@ -115,8 +117,9 @@ function buildMonthly(allExpenses){
   console.log(allExpenses)
   const monthset = new Set()
   const categorySet = new Set()
+
   allExpenses.forEach(e=>{
-  monthset.add(toMonthKey(e.date()))
+  monthset.add(toMonthKey(e.date))
   categorySet.add(e.category)
 
 
@@ -133,26 +136,31 @@ sortedCategory.forEach(ct=>{
 })
 
 allExpenses.forEach(e=>{
-  const key = toMonthKey(e.date())
+  const key = toMonthKey(e.date)
   
   if (dataMap[e.category]){
-    dataMap[e.category][key] = (dataMap[e.category][key] || 0) + e.amount()
+    // dataMap[e.category][key] = (dataMap[e.category][key] || 0) + e.amount
+    dataMap[e.category][key] = (dataMap[e.category][key] || 0) + parseFloat(e.amount || 0);
     
     
   }
 })
 
+console.log(sortedCategory, "sortedCategory")
+
 const dataSets = sortedCategory.map(cat => ({ 
   label: cat, 
   data: sortedMonth.map(m => dataMap[cat][m] || 0), 
-  backgroundColor: categoryCol(cat).bg, 
-  borderColor: categoryCol(cat).border, 
+  backgroundColor: categoryCol[cat].bg, 
+  borderColor: categoryCol[cat].border, 
   borderWidth: 1, 
   borderRadius: 4, }));
 
-  const labels = sortedMonth.map(e=>{
+  const labels = sortedMonth.map(e=>
     formatMonthLabel(e)
-  })
+  )
+
+  console.log(labels)
 
   const ctx = document.getElementById("expenseBarChart").getContext("2d")
   if (monthlyChart){
@@ -160,7 +168,7 @@ const dataSets = sortedCategory.map(cat => ({
 
   }
   else{
-    monthlyChart = null; 
+    // monthlyChart = null; 
   }
 console.log("datasets", dataSets)
 monthlyChart = new Chart(ctx, {
@@ -186,7 +194,11 @@ monthlyChart = new Chart(ctx, {
         y: {
           stacked: true,
           beginAtZero: true,
-          ticks: { callback: v => v }
+          min:0,
+          max: 10000, 
+
+
+          ticks: { stepSize:1000, callback: v => v }
         }
       }
     }
@@ -194,9 +206,9 @@ monthlyChart = new Chart(ctx, {
 console.log("monthly", monthlyChart)
  // Build custom legend chips under the chart
   const legendEl = document.getElementById("barChartLegend");
-  legendEl.innerHTML = sortedCategories.map(cat => `
+  legendEl.innerHTML = sortedCategory.map(cat => `
     <span class="legend-chip">
-      <span class="legend-dot" style="background:${getCategoryColor(cat).border}"></span>
+      <span class="legend-dot" style="background:${getCategoryColour(cat).border}"></span>
       ${cat}
     </span>
   `).join("");
@@ -214,7 +226,7 @@ async function loadUserData() {
     expenses = [];
     snap.forEach(d => expenses.push({ id: d.id, ...d.data() }));
     showExpenses();
-    updatePieChart();
+    setTimeout(updatePieChart, 1000)
   } catch (err) { console.error("Error loading expenses:", err); }
 
   try {
@@ -425,5 +437,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") window.closeSideBar();
 });
  
+
 
 console.log(document.getElementById("hamIcons"))
