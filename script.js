@@ -81,7 +81,7 @@ async function renderMonthlyData(){
 
   loading.style.display = "none"; 
   content.style.display = "block";
-  setTimeout(buildMonthly(allExpenses), 1000)
+  setTimeout(()=>buildMonthly(allExpenses), 100)
 
 }
 
@@ -173,7 +173,7 @@ const dataSets = sortedCategory.map(cat => ({
 console.log("datasets", dataSets)
 monthlyChart = new Chart(ctx, {
    type: "bar",
-    data: { labels, dataSets },
+    data: { labels, datasets: dataSets },
     options: {
       responsive: true,
       interaction: {
@@ -183,9 +183,16 @@ monthlyChart = new Chart(ctx, {
       plugins: {
         legend: { display: false },  // we build our own legend below
         tooltip: {
+          backgroundColor: (0,0,0), 
+          titleColor: "#4199E1", 
+          bodyColor: (255, 255, 255),
+          padding: 10, 
+          
           callbacks: {
+            title: ctx=>ctx[0].label,  
             label: ctx =>
-              ` ${ctx.dataSets.label}: ₹${ctx.parsed.y.toFixed(2)}`
+              ` ${ctx.datasets.label}: ${ctx.parsed.y.toFixed(2)}`
+
           }
         }
       },
