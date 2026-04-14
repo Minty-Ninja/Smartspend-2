@@ -183,18 +183,28 @@ monthlyChart = new Chart(ctx, {
       plugins: {
         legend: { display: false },  // we build our own legend below
         tooltip: {
+          enabled: true, 
           backgroundColor: (0,0,0), 
           titleColor: "#4199E1", 
           bodyColor: (255, 255, 255),
           padding: 10, 
+          footerColor: "#4199E1", 
           
           callbacks: {
             title: ctx=>ctx[0].label,  
             label: ctx =>
-              ` ${ctx.datasets.label}: ${ctx.parsed.y.toFixed(2)}`
+           ` ${ctx.dataset.label}: ${parseFloat(ctx.parsed.y).toFixed(2)}`, 
+            footer: ctx => {
+              const total = ctx.reduce((acc, val)=>
+                acc + parseFloat(val.parsed.y), 0)
+
+              return `Total: ${total.toFixed(2)}`
+            }
+
 
           }
         }
+        
       },
       scales: {
         x: { stacked: true },
@@ -202,10 +212,28 @@ monthlyChart = new Chart(ctx, {
           stacked: true,
           beginAtZero: true,
           min:0,
-          max: 10000, 
+          max: (()=>{
+            const monthTotals = sortedMonth.map(m=>{
+              //WE are summing cats fr all cats / month. Then we find highest total. Ez
+              sortedCategory.reduce((acc, val)=>acc + (dataMap[val][m] || 0), 0)
+            })
+            const highest = Math.max(...monthTotals)
+            const final= Math.ceil((highest * 1.1)/500) * 500; 
+            return final     
+          })(), 
 
 
-          ticks: { stepSize:1000, callback: v => v }
+          ticks: { stepSize:(()=>{
+            const monthTotals = sortedMonth.map(m=>{
+              //WE are summing cats fr all cats / month. Then we find highest total. Ez
+              sortedCategory.reduce((acc, val)=>acc + (dataMap[val][m] || 0), 0)
+            })
+            const highest = Math.max(...monthTotals)
+            const final= Math.ceil((highest * 1.1)/500) * 500; 
+            return (final/10)   
+
+          }) (),
+           callback: v => v }
         }
       }
     }
