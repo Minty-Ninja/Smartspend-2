@@ -71,7 +71,7 @@
   <!-- ========== DASHBOARD SECTION (hidden initially) ========== -->
   <section id="dashboard-section" class="screen dashboard-screen" aria-hidden="true" style="display:none;">
     <button id="hamIcons" class="Hamburger" onclick= "toggleSideBar()" aria-label = "toggleMenu">
-      <span class="menu-icon">☰</span>
+      <span class="menu-icon" id="hamLabel">☰</span>
     </button>
     
     <div id = "sideBarOverlay" class = "sideBar-Overlay" onclick = "closeSideBar()"></div>
@@ -79,12 +79,13 @@
     
     <div id="sidebar" class="sidebar">
       <h2>SmartSpend</h2>
-      <a href="#" onclick="closeSideBar()">🏠 Dashboard</a>
+      <a href="#" onclick="showHome()">🏠 Dashboard</a>
       <a href="#" onclick="showMonthly()">📊 Monthly Review</a>
       <a href="#" id = "logOut" onclick="logout()">🚪 Logout</a>
     </div>
     
     <div class="site-wrap">
+
 
       <header class="site-header">
         <div class="brand">
@@ -161,8 +162,8 @@
   <section id="monthlyIns" class="monthlyInsight" aria-hidden="true" style="display:none;">
 
     <div class="monthly-header"> 
-      <button class="back-btn" onclick="showHome()">← Back</button>
-       <h2>Monthly Review</h2>
+      <!-- <button class="back-btn" onclick="showHome()">← Back</button> -->
+       <!-- <h2>Monthly Review</h2> -->
    </div>
 
    <div id = "monthlyLoad" class = "monthly-header">
