@@ -1,3 +1,14 @@
+import { auth, db } from "./config.js";
+import { onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import {
+  collection,
+  getDocs, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+// Import auth UI + the flag checker
+import { showDashboard, showAuth, getAndResetNewSignup } from "./authentication.js";
+
 const model = "gemini-2.5-flash"
 const key = "AIzaSyAXTu-0tJxSAc52qzl5TBUFnqY5NPO2JSU" 
 //import {GAK} from '.env'
@@ -12,6 +23,31 @@ const messages = document.getElementById("messages");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 //const flag = false
+
+let currentUserId = null; 
+let cacheData = null; 
+onAuthStateChanged(auth, user=>{
+  currentUserId = user?user.id:null; 
+  cacheData = null; 
+})
+
+async function fetchUserData() {
+  if (!currentUserId)
+    return {expenses:[], goals:[]}
+  if (cacheData){
+    return cacheData; 
+  }
+  const [expsnap, goalsnap] = await Promise.all([
+    getDocs(query(collection(db, "users", currentUserId, "expenses"), orderBy("createdAt", "desc"))).catch(()=>null),
+    getDocs(query(collection(db, "users", currentUserId, "goals"), orderBy("createdAt", "desc"))).catch(()=>null)
+  ]); 
+  const expenses= expsnap?expsnap.doc.map(d=>({id:d.id, ...d.data()})):[]; 
+  const goals= goalsnap?goalsnap.doc.map(d=>({id:d.id, ...d.data()})):[]; 
+  cacheData = {expenses, goals}
+  return (cacheData); 
+
+
+}
 
 
 
@@ -107,7 +143,7 @@ async function sendMessage() {
 // Small “system style” instruction: keep answers crisp and structured
     const prompt =
       `You are a helpful assistant for a personal finance tracker named SmartSpend.
-Give crisp, practical advice.
+Give precise, practical advice.
 Use short bullet points.
 If user asks for a plan, give a 3-step plan.
 User question: ${userText}`;
@@ -212,6 +248,23 @@ addMessage("How can I help you?", "bot");
 //   }
 // }
 
+function timeLim(goals){ 
+  return goals.map(g=>{
+    const target    = parseFloat(g.target) || 0;
+    const saved     = parseFloat(g.saved)  || 0;
+    const remaining = target - saved;
+    const deadline   = g.date ? new Date(g.date) : null;
+    const createdAt  = g.createdAt?.toDate ? g.createdAt.toDate() : new Date();
+    const now        = new Date();
+    const daysLeft    = deadline ? Math.ceil((deadline - now) / 86400000) : null;
+    const totalDays   = deadline ? Math.ceil((deadline - createdAt) / 86400000) : null;
+    const daysElapsed = totalDays && daysLeft !== null ? totalDays - daysLeft : null;
+    const dailySavedSoFar = daysElapsed > 0 ? saved / daysElapsed : null;
+    const dailyNeeded     = daysLeft > 0    ? remaining / daysLeft : Infinity;
+    const pctComplete = Math.min((saved / target) * 100, 100);
+    let score = pctComplete * 0.4;
+  })
+}
 async function sendMessage() {
   const userText = input.value.trim();
   //console.log(userText)

@@ -97,7 +97,7 @@ function getCategoryColour(category){
 }
 
 function toMonthKey(dateStr) { 
-  // dateStr is "YYYY-MM-DD" from the date input → returns "YYYY-MM" 
+  // dateStr is "YYYY-MM-DD" from the date input - returns "YYYY-MM" 
   return dateStr ? dateStr.slice(0, 7) : ""; } 
 
 function formatMonthLabel(key) { 
